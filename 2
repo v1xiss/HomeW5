@@ -1,0 +1,77 @@
+using System;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
+
+public class CurrencyClient
+{
+	private const int Port = 8080;
+	private const string Host = "127.0.0.1";
+
+	//  підключається і надсилає/отримує дані
+	public async Task<string> SendRequestAsync(string requestMessage)
+	{
+		try
+		{
+			using (var client = new TcpClient())
+			{
+				// Підключення 
+				await client.ConnectAsync(Host, Port);
+
+				using (var stream = client.GetStream())
+				{
+					// Надсилання запиту
+					byte[] requestData = Encoding.UTF8.GetBytes(requestMessage);
+					await stream.WriteAsync(requestData, 0, requestData.Length);
+
+					// Отримання відповіді
+					var buffer = new byte[1024];
+					int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+
+					if (bytesRead > 0)
+					{
+						return Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
+					}
+					else
+					{
+						return "Помилка: Сервер від'єднався або не надіслав відповідь.";
+					}
+				}
+			}
+		}
+		catch (SocketException e)
+		{
+			return $"Помилка підключення: Не вдалося під'єднатися до сервера ({Host}:{Port}). Переконайтеся, що сервер запущено. Деталі: {e.Message}";
+		}
+		catch (Exception e)
+		{
+			return $"Загальна помилка: {e.Message}";
+		}
+	}
+
+	// Головний цикл
+	public static async Task Main(string[] args)
+	{
+		var clientApp = new CurrencyClient();
+		Console.WriteLine("🌐 Клієнт \"Курс валют\". Для виходу введіть 'exit' або 'quit'.");
+		Console.WriteLine("   Формат запиту: ВАЛЮТА1 ВАЛЮТА2 (наприклад, USD EURO)");
+
+		while (true)
+		{
+			Console.Write("\nВведіть запит > ");
+			string input = Console.ReadLine();
+
+			if (string.IsNullOrWhiteSpace(input) || input.ToLower() == "exit" || input.ToLower() == "quit")
+			{
+				Console.WriteLine("... Відключення.");
+				break;
+			}
+
+			// Виклик мережевого рівня
+			string response = await clientApp.SendRequestAsync(input);
+
+			// Відображення  інформації
+			Console.WriteLine($"\n✅ Відповідь сервера:\n{response}");
+		}
+	}
+}
