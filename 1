@@ -1,0 +1,121 @@
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace VipApp
+{
+    public partial class Form1 : Form
+    {
+        private bool _isVip = false;
+
+        public Form1()
+        {
+            InitializeComponent();
+            this.Text = "VIP Демо (Вразливий додаток)";
+            UpdateUI();
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            string login = txtLogin.Text.Trim();
+            string password = txtPassword.Text.Trim();
+
+            // НЕБЕЗПЕЧНА КЛІЄНТСЬКА ПЕРЕВІРКА
+            if (login == "admin" && password == "admin")
+            {
+                _isVip = true;
+                MessageBox.Show("Вхід успішний! Ви — VIP-користувач.", "Успіх", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                _isVip = false;
+                MessageBox.Show("Невірний логін або пароль.", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            UpdateUI();
+        }
+
+        private void btnVipFeature_Click(object sender, EventArgs e)
+        {
+            // Перевірка сервер
+            if (_isVip)
+            {
+                MessageBox.Show("🎉 Вітаємо! Ви використовуєте VIP-функцію!", "VIP Доступ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("❌ Ця функція доступна лише VIP-користувачам.", "Доступ заборонено", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+            }
+        }
+
+        private void UpdateUI()
+        {
+            btnVipFeature.Enabled = _isVip;
+            lblStatus.Text = _isVip ? "Статус: VIP" : "Статус: Звичайний";
+            lblStatus.ForeColor = _isVip ? Color.Green : Color.Red;
+        }
+
+        
+        #region Windows Form Designer generated code
+            private System.ComponentModel.IContainer components = null;
+        private TextBox txtLogin;
+        private TextBox txtPassword;
+        private Button btnLogin;
+        private Button btnVipFeature;
+        private Label lblStatus;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+                components.Dispose();
+            base.Dispose(disposing);
+        }
+
+        private void InitializeComponent()
+        {
+            this.txtLogin = new TextBox();
+            this.txtPassword = new TextBox();
+            this.btnLogin = new Button();
+            this.btnVipFeature = new Button();
+            this.lblStatus = new Label();
+
+            this.SuspendLayout();
+
+            // Login Textbox
+            this.txtLogin.Location = new Point(12, 12);
+            this.txtLogin.PlaceholderText = "Логін";
+
+            // Password Textbox
+            this.txtPassword.Location = new Point(12, 38);
+            this.txtPassword.PasswordChar = '*';
+            this.txtPassword.PlaceholderText = "Пароль";
+
+            // Login Button
+            this.btnLogin.Location = new Point(12, 64);
+            this.btnLogin.Text = "Увійти";
+            this.btnLogin.Click += new EventHandler(this.btnLogin_Click);
+
+            // VIP Button
+            this.btnVipFeature.Location = new Point(12, 100);
+            this.btnVipFeature.Text = "VIP-функція";
+            this.btnVipFeature.Click += new EventHandler(this.btnVipFeature_Click);
+
+            // Status Label
+            this.lblStatus.Location = new Point(12, 130);
+            this.lblStatus.Size = new Size(200, 20);
+            this.lblStatus.Text = "Статус: Звичайний";
+
+            // Form
+            this.ClientSize = new Size(250, 160);
+            this.Controls.Add(this.txtLogin);
+            this.Controls.Add(this.txtPassword);
+            this.Controls.Add(this.btnLogin);
+            this.Controls.Add(this.btnVipFeature);
+            this.Controls.Add(this.lblStatus);
+            this.Text = "VIP Демо (Небезпечно!)";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+        }
+        #endregion
+    }
+}
